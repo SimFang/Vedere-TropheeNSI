@@ -1,0 +1,17 @@
+{
+  "welcome": "Welcome",
+  "login": "Se connecter",
+  "signup":"Sign up",
+  "logout": "Logout",
+  "settings": "Settings",
+  "profile": "Profile",
+  "home": "Home",
+  "error": {
+    "required": "This field is required.",
+    "invalid": "Invalid input."
+  },
+  "success": {
+    "login": "You have successfully logged in.",
+    "logout": "You have successfully logged out."
+  }
+}
