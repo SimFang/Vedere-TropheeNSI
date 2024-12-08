@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Dimensions, Animated, Alert, ScrollView, Switch, Image, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Animated, Alert, ScrollView, Switch, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useState } from 'react';
 import CompanyLogo from '../../../../components/elements/companyLogo';
 import Button from '../../../auth/components/Button';
@@ -13,6 +13,8 @@ import { useRouter } from 'expo-router';
 import validateData from '../../../../helpers/photographerFormula/validateData';
 import * as ImagePicker from 'expo-image-picker'; // Import ImagePicker
 import DottedButton from "../../../../components/button/dottedButton"
+import { Ionicons } from '@expo/vector-icons'; // or from 'react-ionicons' if you're using that package
+
 const FirstPage = () => {
   const authState = useSelector((state) => state.auth);
   const router = useRouter();
@@ -29,6 +31,22 @@ const FirstPage = () => {
   const [isProfessional, setIsProfessional] = useState(false);
   const [price, setPrice] = useState(0);
   const [submitLoading, setSubmitLoading] = useState(false)
+
+  const quitPage = () => {
+    setLoading(false);
+    setName('');
+    setSurname('');
+    setDescription('');
+    setAge('');
+    setState('');
+    setLocation('');
+    setPhoneNumber('');
+    setSelectedImages([]); // Reset selected images
+    setIsProfessional(false);
+    setPrice(0);
+    setSubmitLoading(false); // Reset submit loading
+    router.replace('/home/profile');
+  };
 
   // Function to open image picker
   const pickImages = async () => {
@@ -135,6 +153,9 @@ const FirstPage = () => {
       {loading && <Loading />}
       <View style={styles.mainContainer}>
         <View style={styles.logo}><CompanyLogo dark={false} size={40} /></View>
+        <TouchableOpacity style={styles.quitButton} onPress={() => quitPage()}>
+        <Ionicons name="chevron-back" size={30} color="white" />
+      </TouchableOpacity>
         <Animated.ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
           <View style={styles.center}>
             <Text style={styles.title}>{t('jointhecreation')}</Text>
@@ -277,6 +298,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 50,
     left: 30,
+  },
+  quitButton : {
+    position: 'absolute',
+    top: 50,
+    right: 30,
   },
   mainContainer: {
     justifyContent: 'flex-end',

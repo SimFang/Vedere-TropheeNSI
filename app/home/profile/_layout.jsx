@@ -37,7 +37,7 @@ export default function ProfileLayout() {
         options={{ headerShown : false }} 
       />
       <Stack.Screen 
-        name="settings/security" 
+        name="settings/cookie-policy" 
         options={{ headerShown : false }} 
       />
       <Stack.Screen 

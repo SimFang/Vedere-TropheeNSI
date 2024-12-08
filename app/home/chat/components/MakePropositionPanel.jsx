@@ -3,8 +3,9 @@ import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient'; // Import LinearGradient
 import { t } from "../../../../localization";
+import NewPropositionInterface from './NewPropositionInterface';
 
-const MakePropositionPanel = ({ setProposition }) => {
+const MakePropositionPanel = ({ setProposition, setPropositionPanelOn, handleSend }) => {
   const handleInputChange = (field, value) => {
     setProposition(prev => ({
       ...prev,
@@ -13,44 +14,7 @@ const MakePropositionPanel = ({ setProposition }) => {
   };
 
   return (
-    <LinearGradient
-      // Define your gradient colors here
-      colors={['#327DA7', '#133141']} 
-      style={styles.panelContainer}
-    >
-      <Text style={styles.headerText}>{t('hihereismyproposition')}</Text>
-
-      <View style={styles.inputContainer}>
-        <Ionicons name="location-outline" size={24} color="white" />
-        <TextInput
-          style={styles.input}
-          placeholder="Location"
-          placeholderTextColor="white" // Change placeholder text color
-          onChangeText={(value) => handleInputChange('location', value)} // Update state on change
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <Ionicons name="calendar-outline" size={24} color="white" />
-        <TextInput
-          style={styles.input}
-          placeholder="Date (YYYY-MM-DD)"
-          placeholderTextColor="white" // Change placeholder text color
-          onChangeText={(value) => handleInputChange('date', value)} // Update state on change
-        />
-      </View>
-
-      <View style={styles.inputContainer}>
-        <Ionicons name="time-outline" size={24} color="white" />
-        <TextInput
-          style={styles.input}
-          placeholder="Hour (HH:MM)"
-          placeholderTextColor="white" // Change placeholder text color
-          onChangeText={(value) => handleInputChange('hour', value)} // Update state on change
-        />
-      </View>
-
-    </LinearGradient>
+    <NewPropositionInterface handleInputChange={handleInputChange} setPropositionPanelOn={setPropositionPanelOn} handleSend={handleSend} type={"request"}/>
   );
 };
 

@@ -1,23 +1,26 @@
-import { StyleSheet, Text, View, Dimensions, Animated } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, Animated, Alert } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import Login from './login';
 import Signup from './signup';
 import CompanyLogo from '../../components/elements/companyLogo';
 import Button from './components/Button';
 import { useSelector, useDispatch } from 'react-redux'; // Import useDispatch
-import { t, setIndexLanguage } from '../../localization'; // Your localization function
-import { setLanguage } from '../../store/authSlice'; // Import the setLanguage action
+import { t } from '../../localization'; // Your localization function
 import { resetAuthState } from '../../store/authSlice';
 import { resetChatState } from '../../store/chatSlice';
 import { resetPhotographerState } from '../../store/photographerSlice';
-
+import { loginSuccess, setToken } from '../../store/authSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ChangeLanguagePanel from '../../components/ChangeLanguagePanel';
+import { getAuth, signInWithCustomToken, getIdToken } from 'firebase/auth';
 import GoogleLogo from '../../assets/images/googlelogo.png';
 import { useRouter } from 'expo-router';
+import { jwtDecode } from "jwt-decode";
 
 export const authPages = ["main", "login", "signup"];
 
 const Wrapper = () => {
-  const router = useRouter()
+  const router = useRouter();
   const authState = useSelector((state) => state.auth);
   const dispatch = useDispatch(); // Initialize dispatch
   const [currentPage, setPage] = useState(authPages[0]);
@@ -31,6 +34,7 @@ const Wrapper = () => {
       useNativeDriver: false,  // Native driver is false for layout animations
     }).start();
   };
+
   useEffect(() => {
     const targetHeight = currentPage === authPages[0]
       ? Dimensions.get('window').height * 0.5
@@ -38,23 +42,50 @@ const Wrapper = () => {
     animateHeight(targetHeight);
   }, [currentPage]);  // Trigger the effect when currentPage changes
 
-  // Function to change the app's language
-  const changeLanguage = (lang) => {
-    dispatch(setLanguage(lang)); // Update language in Redux store
-    // Assuming setLanguage is your localization function
-    setIndexLanguage(lang); // Update language in localization module
-  };
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const token = await AsyncStorage.getItem('userToken'); // Retrieve token from AsyncStorage
 
-  useEffect(()=>{
-    console.log("resetting the store")
+      if (token) {
+        try {
+          console.log("JWT Token:", token);
+          const decodedToken = jwtDecode(token);
+          console.log(decodedToken);
+          const currentTime = Date.now() / 1000; // Get the current time in seconds
+      
+          // Check if the token's expiration is greater than the current time
+          if (decodedToken.exp > currentTime) {
+            // Token is still valid, dispatch the token
+            dispatch(setToken(token));
+            dispatch(loginSuccess());
+            router.replace("/home");
+          } else {
+            // If the token is expired, do nothing and let the user log in again
+            await AsyncStorage.setItem('userToken', "");
+            console.log("Token has expired, user needs to log in again.");
+            // Optionally, prompt the user to log in again
+          }
+        } catch (error) {
+          console.error("Error decoding or validating token:", error);
+        }
+      } else {
+        console.log("No token found, user will need to log in.");
+      }
+    };
+
+    checkLoginStatus();
+
+    // Reset auth state when component mounts
     dispatch(resetAuthState());
     dispatch(resetChatState());
     dispatch(resetPhotographerState());
-  },[])
+  }, []);
 
   return (
     <View style={styles.mainContainer}>
       <View style={styles.logo}><CompanyLogo dark={false} size={40}/></View>
+      <ChangeLanguagePanel />
+
       <Animated.View style={[styles.container, { height: animatedHeight }]}>
         {currentPage !== authPages[1] && currentPage !== authPages[2] && <>
           <View>
@@ -62,6 +93,7 @@ const Wrapper = () => {
               <Button onPress={() => { setPage(authPages[1]) }} title={t('login')} dark={true} height={60} />
               <Button onPress={() => { setPage(authPages[2]) }} title={t('signup')} height={60} />
             </View>
+
             <View style={styles.secondLineContainer}>
               <View style={styles.line}></View>
               <Text>or Login with</Text>
@@ -70,8 +102,8 @@ const Wrapper = () => {
             <Button onPress={() => { }} title={'Continue with Google'} height={60} width={'100%'} icon={GoogleLogo} />
           </View>
         </>}
-        {currentPage === authPages[1] && <Login setPage={setPage}/>}
-        {currentPage === authPages[2] && <Signup setPage={setPage}/>}
+        {currentPage === authPages[1] && <Login setPage={setPage} />}
+        {currentPage === authPages[2] && <Signup setPage={setPage} />}
         
       </Animated.View>
     </View>
@@ -82,27 +114,27 @@ export default Wrapper;
 
 const styles = StyleSheet.create({
   firstLineContainer: {
-    marginTop : 20,
+    marginTop: 20,
     display: 'flex',
     flexDirection: 'row',
     gap: 10,
-    alignContent : 'center',
+    alignContent: 'center',
     justifyContent: 'center',
   },
-  secondLineContainer : {
-    display : 'flex',
-    flexDirection : 'row',
-    alignContent : 'center',
+  secondLineContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignContent: 'center',
     justifyContent: 'center',
-    textAlign : 'center',
-    gap : 20,
-    marginTop : 50,
-    marginBottom : 50,
+    textAlign: 'center',
+    gap: 20,
+    marginTop: 50,
+    marginBottom: 50,
   },
-  line : {
-    width : 100,
-    height :1,
-    backgroundColor : 'black',
+  line: {
+    width: 100,
+    height: 1,
+    backgroundColor: 'black',
   },
   logo: {
     position: 'absolute',

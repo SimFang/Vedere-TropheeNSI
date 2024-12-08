@@ -15,6 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "googleServicesFile": "./GoogleService-Info.plist",
+      "bundleIdentifier": "com.xplore.vedere",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to upload images."
       }
@@ -35,6 +36,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6e2165dc-6f41-43e8-a86d-f1def6247318"
+      }
     }
   }
 }

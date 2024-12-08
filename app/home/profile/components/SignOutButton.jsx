@@ -3,9 +3,7 @@ import { Text, StyleSheet } from 'react-native';
 import { getAuth, signOut } from 'firebase/auth';
 import { useRouter } from 'expo-router';
 import { useDispatch } from 'react-redux';
-import { resetAuthState } from '../../../../store/authSlice';
-import { resetChatState } from '../../../../store/chatSlice';
-import { resetPhotographerState } from '../../../../store/photographerSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 const LogoutComponent = () => {
   const router = useRouter();
@@ -15,6 +13,9 @@ const LogoutComponent = () => {
     const auth = getAuth();
     try {
       await signOut(auth); // Sign out from Firebase
+      await AsyncStorage.removeItem('userToken'); // Clear the user token from AsyncStorage
+      await AsyncStorage.removeItem('refreshToken'); // Clear the user token from AsyncStorage
+
       router.replace("/auth"); // Navigate to auth screen
     } catch (error) {
       console.error("Logout error:", error.message); // Log any errors

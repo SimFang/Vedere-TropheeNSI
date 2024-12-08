@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import CompanyLogo from '../../../components/elements/companyLogo';
@@ -16,6 +16,7 @@ import WebSocketClient from '../../../services/websocket/chat/chatWebsocket';
 import routes from "../../../constants/routes.json";
 import Chat from './chat';
 import PhotographerDashboard from '../photographers/dashboard/PhotographerDashboard';
+import SearchBar from './components/SearchBar';
 
 const ChatPage = () => {
     const dispatch = useDispatch();
@@ -24,6 +25,7 @@ const ChatPage = () => {
     const photographerState = useSelector((state)=>state.photographer)
     const router = useRouter();
     const wsClientRef = useRef();
+
 
     const load = async () => {
         try {
@@ -39,6 +41,7 @@ const ChatPage = () => {
         }
     };
 
+    // WEBSOCKET
     useEffect(() => {
 
         const connectWebSocket = async () => {
@@ -66,10 +69,20 @@ const ChatPage = () => {
         };
     }, []);
  
-
+    // ROUTE CHECK
     if (authState.token == null || !authState.isAuthenticated) {
         return <Redirect href="/auth" />;
     }
+
+    // SEARCH BAR 
+    const [query, setQuery] = useState("");
+    const filteredPropositions = chatState.propositions.filter((proposition) =>
+        (proposition.name + " " + proposition.surname).toLowerCase().includes(query.toLowerCase())
+    );
+    
+    const filteredConversations = chatState.conversations.filter((conversation) =>
+        (conversation.name + " " + conversation.surname).toLowerCase().includes(query.toLowerCase())
+    );
 
     return (
         <>
@@ -93,41 +106,59 @@ const ChatPage = () => {
 
             {/* DASHBOARD (PHOTOGRAPHER CHAT)*/}
             {photographerState.isPhotographer && <PhotographerDashboard/>}
-
+            <SearchBar query={query} setQuery={setQuery} />
             {chatState.conversations.length === 0 && chatState.propositions.length === 0 && (
                 <View style={styles.inviteContainer}>
                     <Text style={styles.inviteText}>{t('reachOutMessage')}</Text>
                 </View>
             )}
 
-            {/* Propositions Container */}
-            <PropositionsContainer>
-                {chatState && chatState.propositions && chatState.propositions.map((proposition) => {
-                    return (
-                        <PropositionBox
-                            key={proposition.id + proposition.name}
-                            id={proposition.id}
-                            name={proposition.name + " "+ proposition.surname}
-                            distance={proposition.distance}
-                            lastmessage={proposition.lastMessage}
-                            date={proposition.date}
-                            hour={proposition.hour}
-                            location={proposition.location}
-                        />
-                    );
-                })}
-            </PropositionsContainer>
+            {/* Here chat I want you to implement a search bar, the search bar component in itself will be a separated component that set the value of a state called query or something like this  */}
+            {/* When a research is made you will get the the propositionBox or the ChatBox where query = name   */}
 
-            {/* Conversations Container */}
-            <ConversationContainer>
-                {chatState && chatState.conversations && chatState.conversations.map((conversation) => {
-                    return (
-                        <ChatBox key={conversation.id + conversation.name} id={conversation.id} name={conversation.name + " "+ conversation.surname} lastmessage={conversation.lastMessage} isFile={conversation.isFile}>
-                            <Text>5 stars</Text>
-                        </ChatBox>
-                    );
-                })}
-            </ConversationContainer>
+            {/* Main Container */}
+                <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 20 }}>
+                    {/* Propositions Container */}
+                    <PropositionsContainer>
+                        {filteredPropositions && 
+                            [
+                            // First map over active propositions
+                            ...filteredPropositions.filter(proposition => proposition.isActive),
+                            // Then map over inactive propositions
+                            ...filteredPropositions.filter(proposition => !proposition.isActive)
+                            ].map((proposition) => (
+                            <PropositionBox
+                                key={proposition.id + proposition.name}
+                                id={proposition.id}
+                                name={proposition.name + " " + proposition.surname}
+                                distance={proposition.distance}
+                                lastmessage={proposition.lastMessage}
+                                date={proposition.date}
+                                hour={proposition.hour}
+                                location={proposition.location}
+                                isActive={proposition.isActive}
+                            />
+                            ))
+                        }
+                        </PropositionsContainer>
+
+                    {/* Conversations Container */}
+                    <ConversationContainer>
+                        {filteredConversations.map((conversation) => {
+                            return (
+                                <ChatBox
+                                    key={conversation.id + conversation.name}
+                                    id={conversation.id}
+                                    name={conversation.name + " " + conversation.surname}
+                                    lastmessage={conversation.lastMessage}
+                                    isFile={conversation.isFile}
+                                >
+                                    <Text>5 stars</Text>
+                                </ChatBox>
+                            );
+                        })}
+                    </ConversationContainer>
+                </ScrollView>
 
             
 

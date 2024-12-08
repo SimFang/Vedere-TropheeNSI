@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View, Image, TouchableOpacity, Text, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import CompanyLogo from '../../../../components/elements/companyLogo';
+import DownloadButton from './DownloadButton';
 
 const PictureVisualization = ({ imageUri, onClose, onUpload }) => {
   const opacity = useRef(new Animated.Value(0)).current; // For fade-in effect
@@ -24,10 +25,8 @@ const PictureVisualization = ({ imageUri, onClose, onUpload }) => {
         <CompanyLogo dark={false} />
       </TouchableOpacity>
       <Image source={{ uri: imageUri }} style={styles.image} resizeMode="contain" />
-      <TouchableOpacity style={styles.uploadButton} onPress={onUpload}>
-        <Ionicons name="download" size={20} color="white" style={styles.uploadIcon} />
-        <Text style={styles.uploadButtonText}>Download</Text>
-      </TouchableOpacity>
+      {/* Replace the previous download button with the new DownloadButton component */}
+      <DownloadButton imageUrl={imageUri} />
     </Animated.View>
   );
 };

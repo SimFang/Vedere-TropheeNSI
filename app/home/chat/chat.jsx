@@ -12,9 +12,16 @@ import { sendMessageToConversation } from '../../../services/chat/sendMessageToC
 import MakePropositionPanel from './components/MakePropositionPanel';
 import { sendPropositionToConversation } from '../../../services/chat/sendPropositionToConversation';
 import PropositionTextBox from './components/PropositionTextBox';
+import NewPropositionInterface from './components/NewPropositionInterface';
+import { createProposition } from '../../../services/chat/createProposition';
+import { updatePropositionStatusInChat } from '../../../services/chat/updatePropositionStatus';
+import { setDisplayedOrder } from '../../../store/photographerSlice';
+import { useRouter } from 'expo-router';
+import { fetchPhotographerById } from '../../../services/getPhotographers/getPhotographerById';
 
 const Chat = () => {
     const dispatch = useDispatch();
+    const router = useRouter()
     const [conversation, setConversation] = useState(null);
     const [isProposition, setIsProposition] = useState(false);
     const [message, setMessage] = useState("");
@@ -23,12 +30,13 @@ const Chat = () => {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [proposition, setProposition] = useState({ location: "", date: "", hour: "" });
 
+    const [showPropositionInterface, setShowPropositionInterface] = useState(false);
+
     const chatState = useSelector((state) => state.chat);
     const authState = useSelector((state) => state.auth);
     const photographerState = useSelector((state)=> state.photographer)
 
-    const fadeAnim = useRef(new Animated.Value(0)).current;
-
+    // LOAD THE CONTENT
     useEffect(() => {
         const requestUserId = async () => {
             if(photographerState.isPhotographer){
@@ -52,15 +60,48 @@ const Chat = () => {
         requestUserId();
     }, [chatState]);
 
+    // ANIMATION SECTION
+    const fadeAnim = useRef(new Animated.Value(0)).current; // Controls opacity
+    const translateXAnim = useRef(new Animated.Value(Dimensions.get('window').width)).current;
+
     useEffect(() => {
         if (conversation) {
-            Animated.timing(fadeAnim, {
-                toValue: 1,
-                duration: 200,
-                useNativeDriver: true,
-            }).start();
+            // Slide in from the right and fade in
+            Animated.parallel([
+                Animated.timing(fadeAnim, {
+                    toValue: 1,
+                    duration: 100,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(translateXAnim, {
+                    toValue: 0,
+                    duration: 200,
+                    useNativeDriver: true,
+                }),
+            ]).start();
         }
     }, [conversation]);
+    
+    const handleCloseChat = () => {
+        // Slide out to the left and fade out
+        Animated.parallel([
+            Animated.timing(fadeAnim, {
+                toValue: 0,
+                duration: 100,
+                useNativeDriver: true,
+            }),
+            Animated.timing(translateXAnim, {
+                toValue: Dimensions.get('window').width,
+                duration: 200,
+                useNativeDriver: true,
+            }),
+        ]).start(() => {
+            // Clear chat state after animation
+            dispatch(clearCurrentChat());
+        });
+    };
+
+    // KEYBOARD 
 
     useEffect(() => {
         const showSubscription = Keyboard.addListener("keyboardDidShow", () => setKeyboardVisible(true));
@@ -74,18 +115,47 @@ const Chat = () => {
 
     const handleSend = async () => {
         if (!conversation) return;
-
+    
         const conversationId = isProposition ? conversation.conversation_id : conversation.id;
-
+    
+        // Extract all the necessary variables
+        const propositionData = isProposition ? {
+            location: proposition.location,
+            date: proposition.date,
+            hour: proposition.hour
+        } : null;
+    
+        const messageData = !isProposition ? {
+            message: message,
+        } : null;
+    
+        // Check if all proposition data is provided, and handle sending messages accordingly
         if (proposition.location && proposition.date && proposition.hour) {
             if (isProposition) {
                 Alert.alert(t("youcannotoverrideproposition"));
                 setPropositionPanelOn(false);
             } else {
-                await sendPropositionToConversation(userId, "proposition", proposition.date, proposition.hour, proposition.location, Date.now(), conversationId);
+                // get informations about the photographers 
+                const photographersInfo = await fetchPhotographerById(conversation.p2_id)
+                // Navigate to the /payment route with the necessary data
                 setProposition({ location: "", date: "", hour: "" });
                 setPropositionPanelOn(false);
+                router.push({
+                    pathname: '/payment',
+                    params: {
+                      conversationId,
+                      date : proposition.date,
+                      hour : proposition.hour, 
+                      location : proposition.location,
+                      userId : userId,
+                      photographerInfo : JSON.stringify(photographersInfo)
+                    }
+                  });
+                
             }
+    
+            
+            
             return;
         } else {
             await sendMessageToConversation(userId, "message", message, Date.now(), conversationId);
@@ -94,15 +164,44 @@ const Chat = () => {
         }
     };
 
+    // ORDER VALIDATION & VISUALISATION 
+    const handleShowProposition = (prop) => {
+        setShowPropositionInterface(prop);
+    };
+
+    const handleValidation = async() => {
+        // create the proposition
+        if(!showPropositionInterface) return
+        await updatePropositionStatusInChat(showPropositionInterface.conversationId, showPropositionInterface.personalIdInChat, 1, showPropositionInterface.timeStamp )
+        await createProposition(chatState.currentChat.id, showPropositionInterface.date, showPropositionInterface.hour, showPropositionInterface.location, true, false, showPropositionInterface.conversation.p1_id, showPropositionInterface.conversation.p2_id, "0", 1 )
+        // change the proposition in chat state 
+        console.log('Validation function triggered');
+        setShowPropositionInterface(false)
+    };
+
+    const handleDecline = async() => {
+        if(!showPropositionInterface) return
+        // Function to handle decline logic
+        await updatePropositionStatusInChat(showPropositionInterface.conversationId, showPropositionInterface.personalIdInChat, -1,  )
+        console.log('Decline function triggered');
+        setShowPropositionInterface(false)
+    };
+
+    const redirectToOrderVisualisation = () => {
+        dispatch(setDisplayedOrder(conversation.id));
+        router.push("/home/chat/order/orderVisualisation");
+    }
+
     return (
         <>
+            {showPropositionInterface && <NewPropositionInterface setPropositionPanelOn={setShowPropositionInterface} type={showPropositionInterface.status == 0 && !showPropositionInterface.isMe?"validation":"visualisation"} handleDecline={handleDecline} handleValidation={handleValidation} initialLocation={showPropositionInterface.location} initialDate={showPropositionInterface.date} initialHour={showPropositionInterface.hour}/>  }
             {conversation && (
-                <Animated.View style={[styles.chatContainer, { opacity: fadeAnim }]}>
+                <Animated.View style={[styles.chatContainer, { opacity: fadeAnim, transform: [{ translateX: translateXAnim }] }]}>
                     <View style={styles.container}>
                         {/* Header */}
                         <View style={styles.header}>
                             <Text style={styles.title}>{`${conversation.name} ${conversation.surname}`}</Text>
-                            <TouchableOpacity onPress={() => dispatch(clearCurrentChat())}>
+                            <TouchableOpacity onPress={handleCloseChat}>
                                 <Ionicons name="close-sharp" size={30} color={"black"} />
                             </TouchableOpacity>
                         </View>
@@ -112,11 +211,12 @@ const Chat = () => {
 
                         {/* Chat Header with three text elements horizontally */}
                         {isProposition && (
-                            <View style={styles.chatHeader}>
+                            <TouchableOpacity style={styles.chatHeader} onPress={redirectToOrderVisualisation}>
                                 <Text style={styles.headerText}>{conversation.date}</Text>
                                 <Text style={styles.headerText}>{conversation.hour}</Text>
                                 <Text style={styles.headerText}>{conversation.location}</Text>
-                            </View>
+                                <Ionicons name="chevron-forward" size={24} color="#D3D3D3" style={styles.icon} />
+                            </TouchableOpacity>
                         )}
 
                         {/* Scrollable Chat */}
@@ -130,28 +230,29 @@ const Chat = () => {
                                         timeStamp={msg.timeStamp} 
                                     />
                                 ) : msg.type === "proposition" ? (
-                                    <PropositionTextBox 
-                                        key={key}
-                                        date={msg.date} 
-                                        hour={msg.hour} 
-                                        location={msg.location} 
-                                        isMe={userId === msg.sender} 
-                                        timeStamp={msg.timeStamp} 
-                                        status={msg.status} 
-                                        conversation={conversation}
-                                        personalIdInChat={key} 
-                                        conversationId={conversation.id}
-                                    />
+                                            <PropositionTextBox 
+                                                key={key+"Proposition"}
+                                                date={msg.date} 
+                                                hour={msg.hour} 
+                                                location={msg.location} 
+                                                isMe={userId === msg.sender} 
+                                                timeStamp={msg.timeStamp} 
+                                                status={msg.status} 
+                                                conversation={conversation}
+                                                personalIdInChat={key} 
+                                                conversationId={conversation.id}
+                                                onPress={handleShowProposition}
+                                            />
                                 ) : null // Add more conditions as needed
                             ))}
                         </ScrollView>
 
                         {/* Input field and send button */}
-                        {propositionPanelOn && <MakePropositionPanel setProposition={setProposition} />}
+                        {propositionPanelOn && <MakePropositionPanel setProposition={setProposition} setPropositionPanelOn={setPropositionPanelOn} handleSend={handleSend}/>}
                         <View style={[styles.inputContainer, { marginBottom: keyboardVisible ? 280 : 5 }]}>
-                            <TouchableOpacity style={styles.propositionbutton} onPress={() => setPropositionPanelOn(prev => !prev)}>
+                            {!photographerState.isPhotographer && <TouchableOpacity style={styles.propositionbutton} onPress={() => setPropositionPanelOn(prev => !prev)}>
                                 <Ionicons name="add-sharp" color={"#327EA8"} size={20} />
-                            </TouchableOpacity>
+                            </TouchableOpacity>}
                             <TextInput
                                 style={styles.input}
                                 value={message}
@@ -208,7 +309,15 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         paddingHorizontal: 20,
-        marginBottom: 40,
+        paddingBottom: 30,
+        marginBottom: 5,
+        backgroundColor: '#fff', // Ensure background is set for shadow visibility
+        shadowColor: '#000', // Shadow color for iOS
+        shadowOffset: { width: 0, height: 7 }, // Shift shadow downward for iOS
+        shadowOpacity: 0.2, // Shadow transparency for iOS
+        shadowRadius: 3, // Blur radius for iOS
+        elevation: 4, // Shadow height for Android
+        borderRadius: 10, // Optional: softens edges
     },
     headerText: {
         fontSize: 14,

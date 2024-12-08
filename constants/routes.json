@@ -1,5 +1,5 @@
 {
-    "serverUrl": "http://192.168.0.35:8000",
+    "serverUrl": "http://192.168.0.32:8000",    
     "loginEndpoint": "/api/users/login",
     "signupEndpoint": "/api/users/signup",
     "emailVerificationEndpoint": "/api/users/emailverification",
@@ -29,5 +29,10 @@
     "updateUserSurname": "/api/users/update-user-surname",
     "updateUserPassword": "/api/users/update-password",
     "updateUserEmail": "/api/users/update-email",
-    "getLastPropositionsWithResults":"/api/propositions/getlastpropositionswithresults"
+    "getLastPropositionsWithResults":"/api/propositions/getlastpropositionswithresults",
+    "addPhotographerWork":"/api/photographers/addimagetowork",
+    "removePhotographerWork":"/api/photographers/removeimagefromwork",
+    "validateShooting":"/api/propositions/validateproposition",
+    "handlePayment":"/api/payment/handlepayment",
+    "downloadpicture":"/api/propositions/downloadpicturefromurl"
 }

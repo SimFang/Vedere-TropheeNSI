@@ -34,10 +34,10 @@ const Settings = () => {
       url: '/home/profile/settings/appearance',
     },
     {
-      title: t('securitypreferences'),
+      title: t('CookiePolicy'),
       text: t('chooseandplanifyyoursecuritytools'),
       children: <Ionicons name="lock-closed" size={24} />,
-      url: '/home/profile/settings/security',
+      url: '/home/profile/settings/cookie-policy',
     },
     {
       title: t('termsofuse'),

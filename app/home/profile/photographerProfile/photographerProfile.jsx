@@ -12,6 +12,7 @@ import { fetchPhotographerById } from '../../../../services/getPhotographers/get
 import ModifyInfoPopup from './modifyInfoPopup';
 import { modifyPhotographerDescription, modifyPhotographerPrice, modifyPhotographerOperationLocation, modifyPhotographerState } from '../../../../services/photographer/updatePhotographerInfo';
 import { validateAddressOrCity } from '../../../../services/location/validateAdressOrCity';
+import EditWorkPage from './editWorkPage';
 
 const ProfilePage = () => {
 
@@ -22,6 +23,9 @@ const ProfilePage = () => {
 
   const [editingSection, setEditingSection] = useState(null)
   const [editingInitialValue, setEditingInitialValue] = useState('')
+
+  const [showEditWorkPage, setShowEditWorkPage] = useState(false); // New state to control visibility
+  const [workImages, setWorkImages] = useState([]);
   
   const [user, setUser] = useState(null)
 
@@ -41,6 +45,19 @@ const ProfilePage = () => {
       profile_picture: newImageUri, // Update the profile picture URI
     }));
   };
+
+
+  // Function to handle showing EditWorkPage
+  const handleEditWork = (initialImages) => {
+    setWorkImages(initialImages);
+    setShowEditWorkPage(true);
+  };
+
+  // Function to handle closing EditWorkPage
+  const handleCloseEditWork = () => {
+    setShowEditWorkPage(false);
+  };
+
 
   const onSubmit = async (newValue) => {
     try {
@@ -70,20 +87,32 @@ const ProfilePage = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-        try {
-            const data = await fetchPhotographerById(photographerState.isPhotographer);
-            setUser(data.photographer);
-        } catch (error) {
-            console.error("Error fetching photographer data:", error);
-        }
-    };
+  const fetchData = async () => {
+    try {
+        const data = await fetchPhotographerById(photographerState.isPhotographer);
+        setUser(data.photographer);
+    } catch (error) {
+        console.error("Error fetching photographer data:", error);
+    }
+};
 
+  useEffect(() => {
     fetchData();
 }, []);
   return (
     <>
+      {showEditWorkPage && (
+        <View style={styles.absoluteOverlay}>
+          <EditWorkPage
+            initialImages={workImages}
+            photographerId={photographerState.isPhotographer}
+            onClose={()=>{
+              handleCloseEditWork(),
+              fetchData();
+            }} // Optional close handler
+          />
+        </View>
+      )}
     {editingSection && <ModifyInfoPopup isVisible={editingSection} initialValue={editingInitialValue} onSubmit={onSubmit} onClose={handleClose} currentSection={editingSection}/>}
         <View style={styles.container}>
             <Header>
@@ -139,13 +168,11 @@ const ProfilePage = () => {
             </ScrollView>
 
             <View style={styles.dottedButtonContainer}>
-                <DottedButton
-                    title={t('updateyourwork')}
-                    width={300}
-                    onPress={() => {
-                        // Add your onPress logic here
-                    }}
-                />
+              <DottedButton
+                title={t('updateyourwork')}
+                width={300}
+                onPress={() => handleEditWork(user?.work || [])}
+              />
             </View>
         </View>
 

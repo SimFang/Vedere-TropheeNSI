@@ -1,32 +1,29 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient'; // Import LinearGradient
 import { t } from "../../../../localization";
 import { createProposition } from '../../../../services/chat/createProposition';
 import { useSelector } from 'react-redux';
 import { updatePropositionStatusInChat } from '../../../../services/chat/updatePropositionStatus';
+import NewPropositionInterface from './NewPropositionInterface';
 
-const PropositionTextBox = ({ date, hour, location, isMe, timeStamp, status, conversation, personalIdInChat, conversationId }) => {
-    const chatState = useSelector((state)=>state.chat)
-    
-    const handleValidation = async() => {
-        // create the proposition
-        console.log(timeStamp)
-        await updatePropositionStatusInChat(conversationId, personalIdInChat, 1, timeStamp )
-        await createProposition(chatState.currentChat.id, date, hour, location, true, false, conversation.p1_id, conversation.p2_id, "0", 1 )
-        // change the proposition in chat state 
-
-        console.log('Validation function triggered');
-    };
-
-    const handleDecline = async() => {
-        // Function to handle decline logic
-        await updatePropositionStatusInChat(conversationId, personalIdInChat, -1,  )
-        console.log('Decline function triggered');
-    };
-
+const PropositionTextBox = ({ date, hour, location, isMe, status, timeStamp, conversation, personalIdInChat, conversationId, onPress }) => {
     return (
+        <>
+        <TouchableOpacity onPress={()=>{
+            onPress({
+                date : date, 
+                hour : hour, 
+                location : location, 
+                isMe : isMe,
+                status : status,
+                timeStamp : timeStamp, 
+                conversation : conversation,
+                personalIdInChat : personalIdInChat,
+                conversationId : conversationId
+            })
+        }}>
         <View style={[
             styles.borderContainer,
             isMe ? styles.rightAlign : styles.leftAlign,
@@ -50,19 +47,10 @@ const PropositionTextBox = ({ date, hour, location, isMe, timeStamp, status, con
                     <Ionicons name="time-outline" size={24} color={status === 1 ? 'white' : 'black'} />
                     <Text style={[styles.text, status === 1 && styles.approvedText]}>{hour}</Text>
                 </View>
-
-                {status === 0 && !isMe && (
-                    <View style={styles.buttonContainer}>
-                        <TouchableOpacity style={styles.acceptButton} onPress={handleValidation}>
-                            <Text style={styles.buttonText}>{t('accept')}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.declineButton} onPress={handleDecline}>
-                            <Text style={styles.buttonText}>{t('decline')}</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
             </View>
         </View>
+        </TouchableOpacity>
+        </>
     );
 }
 

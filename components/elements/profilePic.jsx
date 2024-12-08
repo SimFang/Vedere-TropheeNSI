@@ -9,6 +9,7 @@ const ProfilePicture = ({ img, size, modificationId = false, onUpload=()=>{} }) 
 
   // Function to open the image picker
   const pickImage = async () => {
+    console.log(img)
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (permissionResult.granted === false) {

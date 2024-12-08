@@ -14,8 +14,10 @@ import PictureSlider from './pictureSlider';
 import PictureVisualization from './pictureVisualisation';
 import { addWorkToProposition } from "../../../../services/proposition/pushResults";
 import * as ImagePicker from 'expo-image-picker'; // Import image picker
+import ValidationButton from '../components/ValidationButton';
+import validateShooting from '../../../../services/proposition/validateShooting';
 
-export default function App() {
+const App = () => {
   const [region, setRegion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
@@ -153,6 +155,16 @@ export default function App() {
     fetchData();
   }, []);
 
+  const handleValidation = async()=> {
+    console.log("validating")
+    let userId;
+    if(photographerState.isPhotographer){
+      userId = data.p2_id
+    } else {
+      userId = data.p1_id
+    }
+    await validateShooting(photographerState.displayedOrderId, userId )
+  }
 
   return (
     <>
@@ -173,21 +185,28 @@ export default function App() {
           />
         </MapView>}
 
+
         {data && (
           <View style={styles.infoBox}>
             <View style={styles.datePriceContainer}>
               <Text style={styles.dateText}>{data.date + ", " + data.hour}</Text>
               <Text style={styles.priceText}>${data.price}</Text>
             </View>
-
+            {data.isActive && (
+              <ValidationButton 
+                onPress={handleValidation} 
+                validation={data.hasValidated}
+                userId={photographerState.isPhotographer ? data.p2_id : data.p1_id} 
+              />
+            )}
             <View style={styles.locationContainer}>
               <Ionicons name="location-sharp" color={'#CBCBCB'} style={styles.locationIcon}></Ionicons>
               <Text style={styles.locationText}>{data.location}</Text>
             </View>
 
+
             { !data.isActive && <PictureSlider pictures={(data.results)} handleClick={handleShowPicture} canUpload={photographerState.isPhotographer ? true : false} />}
             <View style={styles.separator} />
-
             { data.isActive && (<View style={styles.profileContainer}>
               <TouchableOpacity onPress={() => handlePhotographerClick(selectedPhotographer)}>
                 <Image
@@ -231,6 +250,8 @@ export default function App() {
     </>
   );
 }
+
+export default App;
 
 const styles = StyleSheet.create({
   container: {

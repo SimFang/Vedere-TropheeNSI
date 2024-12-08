@@ -43,6 +43,10 @@ const router = useRouter();
   }
 
   useEffect(()=>{
+    sendEmail()
+  },[])
+
+  useEffect(()=>{
     console.log(authState.signUpData)
     //sendEmail()
     checkCode()

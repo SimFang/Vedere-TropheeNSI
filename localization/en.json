@@ -8,6 +8,7 @@
   "emailVerification": "Email Verification",
   "wevesentaverificationemailto": "We have sent a verification link to",
   "tocompletethesignup": "To complete the sign-up process and activate your account, please provide the code.",
+  "ifyouhaventreceivedthecode" : "If you did not receive the code, click here ",
   "codedoesntmatch": "The code does not match. Please try again.",
   "wannabecomephotographer": "Wanna become a photographer?",
   "sendcode": "Send code",
@@ -86,5 +87,28 @@
   "reachOutMessage": "We couldn't find any conversations or propositions for you. Feel free to reach out to start a new chat!",
   "noShootingsMessage": "You don’t have any shootings yet!",
   "LastShootings" : "Last shootings on the plaform",
-  "VederePhotographer" : "Vedere photographer"
+  "VederePhotographer" : "Vedere photographer",
+  "CookiePolicy":"Cookie Policy",
+
+  "tutorial.howToFindPhotographers.title": "How to find photographers ✨",
+  "tutorial.howToFindPhotographers.description": "Use the Home page to find the latest photographers available for bookings. ",
+  "tutorial.howToFindPhotographers.section1.text": "Tap on the search zone to start discovering your first photographer.",
+  "tutorial.howToFindPhotographers.section2.text": "Apply filters to your selection, let it empty if you just want to discover.",
+  "tutorial.howToFindPhotographers.section3.text": "Just scroll to discover local talent.",
+  
+  "tutorial.converseWithPhotographers.title": "Converse with your photographer 💬",
+  "tutorial.converseWithPhotographers.description": "Message photographers directly to discuss your vision, share ideas, and plan the perfect photoshoot. ",
+  "tutorial.converseWithPhotographers.section1.text": "Exchange with the photographer about your ideas via the chat.",
+  "tutorial.converseWithPhotographers.section2.text": "Input a proposition. Once you’ve submitted, simply wait for the photographer’s confirmation",
+
+  "tutorial.seeYourShootings.title": "See your shootings 👀 ",
+  "tutorial.seeYourShootings.description": "You can easily visualise your shootings",
+  "tutorial.seeYourShootings.section1.text": "Your shootings appear on top of the chat",
+
+  "tutorial.seeOrder.title": "Meet 📷",
+  "tutorial.seeOrder.description": "Meet your photographer in real life!",
+  "tutorial.seeOrder.section1.text": "Get the informations of the shooting.",
+  "tutorial.seeOrder.section2.text": "Done ? You can access the result",
+  "tutorial.seeOrder.section3.text": "Visualise and download"
+
 }

@@ -12,6 +12,7 @@ import { fetchUserInfo } from '../../services/getUserInfoByTokenRequest';
 import { t } from "../../localization";
 import { fetchLastPropositionsWithResults } from '../../services/proposition/getLastPropositionsWithResults.js';
 import LastShootingVisualisation from './chat/order/LastShootingVisualisation.jsx';
+import AppTutorial from '../../components/tutorial/AppTutorial.jsx';
 
 export default function Home() {
   const authState = useSelector((state) => state.auth);
@@ -92,7 +93,9 @@ export default function Home() {
 
   return (
     <>
+
     {shownProposition && <LastShootingVisualisation proposition={shownProposition} onClose={maskShownShooting}/>}
+    <AppTutorial/>
     <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>

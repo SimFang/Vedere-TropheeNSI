@@ -27,7 +27,7 @@ export default function Home() {
         console.log("User is already logged in");
         router.replace("/home");
       } else {
-        router.replace("/auth");
+        router.replace("/auth"); //MODIFY IT FOR /AUTH
       }
     }, animationDuration * 1000);
   }, [authState.isAuthenticated, authState.user]); // Add dependencies to avoid warnings

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, ScrollView, Animated, PanResponder, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, ScrollView, Animated, PanResponder, TouchableOpacity, Dimensions, FlatList } from 'react-native';
 import React, { useRef, useEffect, useState } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons'; // Import Ionicons
 import { fetchPhotographerById } from '../../../../services/getPhotographers/getPhotographerById';
@@ -103,22 +103,27 @@ const LastShootingVisualisation = ({ proposition, onClose }) => {
           <Text style={styles.photographerName}>{`${photographer.name} ${photographer.surname}`}</Text>
         </View>
       )}
-
-      <ScrollView horizontal contentContainerStyle={styles.scrollContainer}>
-        {proposition.results.map((imageUri, index) => (
+      <FlatList
+        data={proposition.results} // Array of images
+        keyExtractor={(item, index) => index.toString()} // Unique key for each item
+        renderItem={({ item }) => (
           <Image
-            key={index}
-            source={{ uri: imageUri }}
+            source={{ uri: item }}
             style={styles.image}
-            resizeMode="cover" // Adjusts how the image should fit in the container
+            resizeMode="cover" // Adjusts how the image fits in the container
           />
-        ))}
-      </ScrollView>
+        )}
+        horizontal // Enables horizontal scrolling
+        pagingEnabled // Enables snapping behavior like TikTok
+        showsHorizontalScrollIndicator={false} // Hides the scroll bar
+      />
     </Animated.View>
   );
 };
 
 export default LastShootingVisualisation;
+
+const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   photographerContainer: {
@@ -179,14 +184,14 @@ const styles = StyleSheet.create({
     marginBottom: 10, // Space between image and name
   },
   scrollContainer: {
-    width: "100%", // Set desired width for each image
     flexDirection: 'row',
     alignItems: 'center',
   },
   image: {
-    width: "100%", // Set desired width for each image
+    width: width, // Set desired width for each image
     height: "100%", // Set desired height for each image
-    marginRight: 5, // Space between images
-    borderRadius: 10, // Optional: rounded corners for images
+    borderRadiusTopLeft: 10, // Optional: rounded corners for images
+    borderRadiusTopRight: 10, // Optional: rounded corners for images
+
   },
 });

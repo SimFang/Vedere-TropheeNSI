@@ -11,4 +11,8 @@ const PropositionsContainer = ({children}) => {
 
 export default PropositionsContainer
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container : {
+    paddingVertical : 10,
+  }
+})
