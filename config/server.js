@@ -35,6 +35,9 @@ app.use('/api/chat', chatRoutes);
 const propositionRoute = require('../services/proposition-service/routes/propositionRoutes')
 app.use('/api/propositions', propositionRoute);
 
+const paymentRoute = require('../services/payment-service/routes/paymentRoutes')
+app.use('/api/payment', paymentRoute)
+
 // Error handling middleware
 const errorHandler = require('../middlewares/errorHandler');
 app.use(errorHandler);

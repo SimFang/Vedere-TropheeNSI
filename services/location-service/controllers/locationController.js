@@ -8,31 +8,6 @@ const {getCoordinateFromAdress} = require("../../../helpers/getCoordinatesFromAd
 const db = admin.firestore();
 const storage = new Storage();
 
-
-// services/user-service/controllers/userController.js
-exports.getSuggestion = async (req, res) => {
-    const { query } = req.query;
-
-    if (!query) {
-        return res.status(400).json({ error: 'Query is required' });
-    }
-
-    try {
-        const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${query}`
-        );
-        const data = await response.json();
-        const suggestions = data.map((item) => ({
-        id: item.place_id,
-        name: item.display_name,
-        }));
-        res.json(suggestions);
-    } catch (error) {
-        console.error('Error fetching suggestions:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-};
-
 exports.checkLocation = async (req,res)=> {
     const { input } = req.query;
 
@@ -62,6 +37,7 @@ exports.giveCoordinates = async (req, res) => {
 
   try {
     const coordinates = await getCoordinateFromAdress(address);
+    console.log(coordinates)
     
     // Check if coordinates were returned successfully
     if (!coordinates) {

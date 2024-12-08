@@ -3,6 +3,9 @@ require('dotenv').config(); // Load environment variables
 const admin = require('firebase-admin');
 const { auth, db } = require('../../../config/firebase');
 const Mailjet = require('node-mailjet');
+const path = require('path'); // For file path resolution
+const fs = require('fs'); // To read the HTML file
+
 
 const { uploadSingleImage, uploadMultipleImages } = require('../../../helpers/imageUpload/imageUpload')
 
@@ -100,6 +103,13 @@ exports.emailVerification = async (req, res) => {
         // Generate a random verification code (e.g., 6-digit code)
         const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
+        // Read the HTML template from the file system
+        const htmlTemplatePath = path.join(__dirname, '../../..', 'assets', 'emailVerification.html');
+        let htmlContent = fs.readFileSync(htmlTemplatePath, 'utf-8'); // Read file content as string
+
+        // Replace the placeholder in the HTML template with the actual verification code
+        htmlContent = htmlContent.replace('${verificationCode}', verificationCode);
+
         // Email content
         const request = mailjet
             .post('send', { version: 'v3.1' })
@@ -115,9 +125,9 @@ exports.emailVerification = async (req, res) => {
                                 Email: email, // Receiver's email
                             },
                         ],
-                        Subject: 'Email Verification',
+                        Subject: 'Complete Your Registration with Vedere',
                         TextPart: `Your verification code is ${verificationCode}`,
-                        HTMLPart: `<p>Your verification code is <b>${verificationCode}</b></p>`,
+                        HTMLPart: htmlContent, // Use the dynamic HTML content
                     },
                 ],
             });
@@ -169,9 +179,12 @@ exports.updateProfilePicture = async (req, res) => {
             console.log(photographerDoc.data())
             
             if (photographerDoc.exists) {
+
                 const userId = photographerDoc.data().userId;
                 console.log("Found photographer. Associated user ID:", userId);
-
+                await db.collection('photographers').doc(id).update({
+                    profile_picture: imageUrl,
+                })
                 // Update the profile picture for the user linked to this photographer
                 await db.collection('Users').doc(userId).update({
                     profile_picture: imageUrl,

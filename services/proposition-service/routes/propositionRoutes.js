@@ -1,6 +1,6 @@
 // services/user-service/routes/userRoutes.js
 const express = require('express');
-const { getPropositionById, addWorkToProposition, getLastPropositionsWithResults } = require('../controllers/propositionController');
+const { getPropositionById, addWorkToProposition, downloadPictureFromUrl, getLastPropositionsWithResults, togglePropositionValidation } = require('../controllers/propositionController');
 const multer = require('multer');
 const upload = multer({
     storage: multer.memoryStorage(), // Store files in memory
@@ -16,5 +16,7 @@ router.post('/addworktoproposition', upload.array('images', 20), addWorkToPropos
 
 router.get('/getlastpropositionswithresults', getLastPropositionsWithResults);
 
+router.post('/validateproposition', togglePropositionValidation)
+router.post('/downloadpicturefromurl', downloadPictureFromUrl)
 
 module.exports = router; // Ensure you are exporting the router correctly

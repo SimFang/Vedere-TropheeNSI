@@ -4,7 +4,6 @@ const { getSuggestion, checkLocation, giveCoordinates } = require('../controller
 const router = express.Router();
 
 // Use the upload.array middleware before calling the requestPhotographer controller
-router.get('/getsuggestion', getSuggestion);
 router.get('/check', checkLocation);
 router.post('/givecoordinates', giveCoordinates)
 

@@ -275,3 +275,82 @@ exports.loadDashboard = async (req, res) => {
     }
   };
   
+
+  // Endpoint to add an image to a photographer's work list
+exports.addImageToWork = async (req, res) => {
+  const { photographerId } = req.body; // Get photographer ID from request body
+  const file = req.file; // Assuming you're using a middleware like multer to handle file uploads
+
+  console.log("Received request to add image to photographer's work list for ID:", photographerId);
+  console.log("Received file:", file);
+
+  try {
+      // Upload the image and get the public URL
+      const imageUrl = await uploadSingleImage(file); // Assuming uploadSingleImage is a utility to upload the image
+      console.log("Image uploaded successfully. Public URL:", imageUrl);
+
+      // Check if the photographer exists in the 'photographers' collection
+      const photographerSnapshot = await db.collection('photographers').doc(photographerId).get();
+      console.log("Photographer snapshot exists:", photographerSnapshot.exists);
+
+      if (photographerSnapshot.exists) {
+          // Photographer found, get the current 'work' array
+          const photographerData = photographerSnapshot.data();
+          const currentWork = photographerData.work || [];
+
+          // Add the new image to the work array
+          currentWork.push(imageUrl);
+
+          // Update the photographer's work list
+          await db.collection('photographers').doc(photographerId).update({
+              work: currentWork,
+          });
+
+          console.log("Image added to photographer's work list for ID:", photographerId);
+          return res.status(200).json({ message: 'Image added to work list successfully', imageUrl });
+      } else {
+          console.log("No photographer found with the provided ID:", photographerId);
+          return res.status(404).json({ message: 'No photographer found with the provided ID' });
+      }
+  } catch (error) {
+      console.error("Error adding image to work list:", error);
+      return res.status(500).json({ message: error.message });
+  }
+};
+
+// Endpoint to remove an image from photographer's work list
+exports.removeImageFromWork = async (req, res) => {
+  const { photographerId, imageUrl } = req.body; // Get photographer ID and image URL to be removed from the request body
+
+  console.log("Received request to remove image from photographer's work list for ID:", photographerId);
+  console.log("Image URL to be removed:", imageUrl);
+
+  try {
+      // Check if the photographer exists in the 'photographers' collection
+      const photographerSnapshot = await db.collection('photographers').doc(photographerId).get();
+      console.log("Photographer snapshot exists:", photographerSnapshot.exists);
+
+      if (photographerSnapshot.exists) {
+          // Photographer found, get the current 'work' array
+          const photographerData = photographerSnapshot.data();
+          let currentWork = photographerData.work || [];
+
+          // Remove the image from the work array
+          currentWork = currentWork.filter(image => image !== imageUrl);
+
+          // Update the photographer's work list
+          await db.collection('photographers').doc(photographerId).update({
+              work: currentWork,
+          });
+
+          console.log("Image removed from photographer's work list for ID:", photographerId);
+          return res.status(200).json({ message: 'Image removed from work list successfully' });
+      } else {
+          console.log("No photographer found with the provided ID:", photographerId);
+          return res.status(404).json({ message: 'No photographer found with the provided ID' });
+      }
+  } catch (error) {
+      console.error("Error removing image from work list:", error);
+      return res.status(500).json({ message: error.message });
+  }
+};

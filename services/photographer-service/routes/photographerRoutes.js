@@ -1,7 +1,7 @@
 // services/photographer-service/routes/photographerRoutes.js
 const express = require('express');
 const multer = require('multer');
-const { requestPhotographer, getPhotographerById, getNearestPhotographers, isPhotographer, loadDashboard, updateOperationLocation, updateDescription, updatePrice, updateState } = require('../controllers/photographerController');
+const { requestPhotographer, getPhotographerById, getNearestPhotographers, isPhotographer, loadDashboard, updateOperationLocation, updateDescription, updatePrice, updateState, addImageToWork, removeImageFromWork } = require('../controllers/photographerController');
 const {test, test2} = require('../controllers/test')
 
 const router = express.Router();
@@ -22,6 +22,10 @@ router.post('/updateoperationlocation', updateOperationLocation);
 router.post('/updatedescription', updateDescription);
 router.post('/updateprice', updatePrice);
 router.post('/updatestate', updateState);
+
+// update work
+router.post('/addimagetowork',upload.single('image'),addImageToWork)
+router.post('/removeimagefromwork',removeImageFromWork)
 
 // store images
 router.post('/test',upload.single('image'),test)
