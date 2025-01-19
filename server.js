@@ -2,7 +2,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors'); // Import the cors package
-const connectDB = require('./firebase'); // No connection function needed for Firestore
+const connectDB = require('./config/firebase'); // No connection function needed for Firestore
 const WebSocket = require('ws');
 const admin = require('firebase-admin');
 
@@ -20,26 +20,26 @@ app.get('/hey', (req, res) => {
 });
 
 // Import and use service routes
-const userRoutes = require('../services/user-service/routes/userRoutes');
+const userRoutes = require('./services/user-service/routes/userRoutes');
 app.use('/api/users', userRoutes);
 
-const photographerRoutes = require('../services/photographer-service/routes/photographerRoutes');
+const photographerRoutes = require('./services/photographer-service/routes/photographerRoutes');
 app.use('/api/photographers', photographerRoutes);
 
-const locationRoutes = require('../services/location-service/routes/locationRoutes');
+const locationRoutes = require('./services/location-service/routes/locationRoutes');
 app.use('/api/location', locationRoutes);
 
-const chatRoutes = require('../services/chat-service/routes/chatRoutes');
+const chatRoutes = require('./services/chat-service/routes/chatRoutes');
 app.use('/api/chat', chatRoutes);
 
-const propositionRoute = require('../services/proposition-service/routes/propositionRoutes')
+const propositionRoute = require('./services/proposition-service/routes/propositionRoutes')
 app.use('/api/propositions', propositionRoute);
 
-const paymentRoute = require('../services/payment-service/routes/paymentRoutes')
+const paymentRoute = require('./services/payment-service/routes/paymentRoutes')
 app.use('/api/payment', paymentRoute)
 
 // Error handling middleware
-const errorHandler = require('../middlewares/errorHandler');
+const errorHandler = require('./middlewares/errorHandler');
 app.use(errorHandler);
 
 // Set up WebSocket server

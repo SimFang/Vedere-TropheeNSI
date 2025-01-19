@@ -6,8 +6,8 @@
     "test": "tests"
   },
   "scripts": {
-    "start": "node config/server.js",
-    "dev": "nodemon config/server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "keywords": [],
   "author": "",

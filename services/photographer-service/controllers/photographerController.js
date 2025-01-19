@@ -201,14 +201,37 @@ exports.loadDashboard = async (req, res) => {
 
         return res.status(400).json({ message: "No propositions found for this photographer" });
       }
-  
-      // Prepare the results
-      const propositions = querySnapshot.docs.map((doc) => ({
+      const projects = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
+      // Map through projects and enrich them with user details
+      const enrichedProjects = await Promise.all(
+        projects.map(async (project) => {
+          try {
+            // Retrieve the user's information from Firestore using p1_id
+            const userDoc = await admin.firestore().collection('Users').doc(project.p1_id).get();
+
+            if (userDoc.exists) {
+              // Add user details to the project object
+              return {
+                ...project,
+                client: userDoc.data(),
+              };
+            } else {
+              console.error(`User with ID ${project.p1_id} not found.`);
+              // Return project as is if the user is not found
+              return project;
+            }
+          } catch (error) {
+            console.error(`Error retrieving user with ID ${project.p1_id}:`, error);
+            // Return project as is in case of error
+            return project;
+          }
+        })
+      );
   
-      return res.status(200).json(propositions); // Return the list of propositions
+      return res.status(200).json(enrichedProjects); // Return the list of propositions
     } catch (error) {
       console.error("Error retrieving propositions: ", error);
       return res.status(500).json({ error: "Something went wrong" });

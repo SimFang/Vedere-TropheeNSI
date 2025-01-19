@@ -6,7 +6,7 @@ let isInitialized = false; // Flag to check if Firebase has been initialized
 
 const initializeFirebase = () => {
     if (!isInitialized) {
-        const serviceAccount = require(process.env.GOOGLE_APPLICATION_CREDENTIALS); // Use environment variable for service account path
+        const serviceAccount = require("../utils/service-account-file.json"); 
 
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount),

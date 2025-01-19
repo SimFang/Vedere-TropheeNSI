@@ -93,18 +93,19 @@ async function uploadSingleImage(file) {
         blobStream.on('finish', async () => {
             console.log("Upload finished successfully.");
 
-            // Get the remote URL (download URL)
-            const [publicUrl] = await fileUpload.getSignedUrl({ action: 'read', expires: '01-01-2025' }); // Set a valid expiration date
-            console.log("Remote URL generated:", publicUrl);
+            // Firebase Storage specific URL with alt=media parameter
+            const filePathEncoded = encodeURIComponent(filename);
+            const firebaseStorageUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${filePathEncoded}?alt=media`;
+            console.log("Firebase Storage URL generated:", firebaseStorageUrl);
 
             // Store image URL in Firestore
             await db.collection('images').add({
-                imageUrl: publicUrl,
+                imageUrl: firebaseStorageUrl,
                 createdAt: admin.firestore.FieldValue.serverTimestamp(),
             });
 
             console.log("Image URL stored in Firestore.");
-            resolve(publicUrl);
+            resolve(firebaseStorageUrl);
         });
 
         blobStream.end(file.buffer); // Finalize the upload
