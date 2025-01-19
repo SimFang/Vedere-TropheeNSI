@@ -9,13 +9,10 @@ import { t } from '../../localization'; // Your localization function
 import { resetAuthState } from '../../store/authSlice';
 import { resetChatState } from '../../store/chatSlice';
 import { resetPhotographerState } from '../../store/photographerSlice';
-import { loginSuccess, setToken } from '../../store/authSlice';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import ChangeLanguagePanel from '../../components/ChangeLanguagePanel';
-import { getAuth, signInWithCustomToken, getIdToken } from 'firebase/auth';
 import GoogleLogo from '../../assets/images/googlelogo.png';
 import { useRouter } from 'expo-router';
-import { jwtDecode } from "jwt-decode";
+import checkLoginStatus from '../../helpers/auth/checkLoginStatus';
 
 export const authPages = ["main", "login", "signup"];
 
@@ -43,42 +40,18 @@ const Wrapper = () => {
   }, [currentPage]);  // Trigger the effect when currentPage changes
 
   useEffect(() => {
-    const checkLoginStatus = async () => {
-      const token = await AsyncStorage.getItem('userToken'); // Retrieve token from AsyncStorage
+    const checkAuthentication = async()=> {
+      const isAuthenticated = await checkLoginStatus(dispatch, router); // Check authentication status
 
-      if (token) {
-        try {
-          console.log("JWT Token:", token);
-          const decodedToken = jwtDecode(token);
-          console.log(decodedToken);
-          const currentTime = Date.now() / 1000; // Get the current time in seconds
-      
-          // Check if the token's expiration is greater than the current time
-          if (decodedToken.exp > currentTime) {
-            // Token is still valid, dispatch the token
-            dispatch(setToken(token));
-            dispatch(loginSuccess());
-            router.replace("/home");
-          } else {
-            // If the token is expired, do nothing and let the user log in again
-            await AsyncStorage.setItem('userToken', "");
-            console.log("Token has expired, user needs to log in again.");
-            // Optionally, prompt the user to log in again
-          }
-        } catch (error) {
-          console.error("Error decoding or validating token:", error);
-        }
-      } else {
-        console.log("No token found, user will need to log in.");
+      if (!isAuthenticated) {
+        // If the user is not authenticated, reset states and redirect to /auth
+        dispatch(resetAuthState());
+        dispatch(resetChatState());
+        dispatch(resetPhotographerState());
+        console.log("User is not authenticated. Redirecting to /auth...");
       }
-    };
-
-    checkLoginStatus();
-
-    // Reset auth state when component mounts
-    dispatch(resetAuthState());
-    dispatch(resetChatState());
-    dispatch(resetPhotographerState());
+    }
+    checkAuthentication()
   }, []);
 
   return (

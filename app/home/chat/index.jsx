@@ -17,6 +17,7 @@ import routes from "../../../constants/routes.json";
 import Chat from './chat';
 import PhotographerDashboard from '../photographers/dashboard/PhotographerDashboard';
 import SearchBar from './components/SearchBar';
+import FilterButton from './order/FilterButton';
 
 const ChatPage = () => {
     const dispatch = useDispatch();
@@ -84,6 +85,12 @@ const ChatPage = () => {
         (conversation.name + " " + conversation.surname).toLowerCase().includes(query.toLowerCase())
     );
 
+    //FILTER BUTTON
+    const filterStatesNumbers = [0,1,2,3]
+    const filterStates = ["all", "done", "shootings", "conversations"];
+    const [filterState, setFilterState] = useState(filterStatesNumbers[0])
+
+
     return (
         <>
         {chatState.currentChat.id && <Chat/>}
@@ -92,9 +99,6 @@ const ChatPage = () => {
             {/* Header */}
             <View style={styles.header}>
                 <CompanyLogo size={30} />
-                <View style={styles.headerIcons}>
-                    <Ionicons name="home-sharp" size={24} color={"black"} onPress={() => { router.replace('/home'); }} />
-                </View>
             </View>
 
             {/* Line + Title (USER CHAT)*/}
@@ -106,45 +110,54 @@ const ChatPage = () => {
 
             {/* DASHBOARD (PHOTOGRAPHER CHAT)*/}
             {photographerState.isPhotographer && <PhotographerDashboard/>}
-            <SearchBar query={query} setQuery={setQuery} />
-            {chatState.conversations.length === 0 && chatState.propositions.length === 0 && (
-                <View style={styles.inviteContainer}>
-                    <Text style={styles.inviteText}>{t('reachOutMessage')}</Text>
-                </View>
-            )}
 
-            {/* Here chat I want you to implement a search bar, the search bar component in itself will be a separated component that set the value of a state called query or something like this  */}
-            {/* When a research is made you will get the the propositionBox or the ChatBox where query = name   */}
+            {/* SEARCH BAR */}
+            <View style={styles.filterZone}>
+                {chatState.conversations.length !== 0 && chatState.propositions.length !== 0 && <SearchBar query={query} setQuery={setQuery}/>              }
+                {chatState.conversations.length === 0 && chatState.propositions.length === 0 && (
+                    <View style={styles.inviteContainer}>
+                        <Text style={styles.inviteText}>{t('reachOutMessage')}</Text>
+                    </View>
+                )}
+                {chatState.conversations.length !== 0 && chatState.propositions.length !== 0 && <FilterButton state={filterState} setState={setFilterState}/>}
+            </View>
+            
+            
 
             {/* Main Container */}
-                <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 20 }}>
+                {<ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 20 }}>
                     {/* Propositions Container */}
                     <PropositionsContainer>
-                        {filteredPropositions && 
+                        {filteredPropositions && filterState !== 3 && 
                             [
-                            // First map over active propositions
-                            ...filteredPropositions.filter(proposition => proposition.isActive),
-                            // Then map over inactive propositions
-                            ...filteredPropositions.filter(proposition => !proposition.isActive)
+                                // First map over active propositions if the state is 0 or 2
+                                ...(filterState === 0 || filterState === 2 
+                                    ? filteredPropositions.filter(proposition => proposition.isActive) 
+                                    : []),
+                                
+                                // Then map over inactive propositions if the state is 0 or 1
+                                ...(filterState === 0 || filterState === 1 
+                                    ? filteredPropositions.filter(proposition => !proposition.isActive) 
+                                    : [])
                             ].map((proposition) => (
-                            <PropositionBox
-                                key={proposition.id + proposition.name}
-                                id={proposition.id}
-                                name={proposition.name + " " + proposition.surname}
-                                distance={proposition.distance}
-                                lastmessage={proposition.lastMessage}
-                                date={proposition.date}
-                                hour={proposition.hour}
-                                location={proposition.location}
-                                isActive={proposition.isActive}
-                            />
+                                <PropositionBox
+                                    key={proposition.id + proposition.name}
+                                    id={proposition.id}
+                                    name={proposition.name + " " + proposition.surname}
+                                    distance={proposition.distance}
+                                    lastmessage={proposition.lastMessage}
+                                    date={proposition.date}
+                                    hour={proposition.hour}
+                                    location={proposition.location}
+                                    isActive={proposition.isActive}
+                                />
                             ))
                         }
-                        </PropositionsContainer>
+                    </PropositionsContainer>
 
                     {/* Conversations Container */}
                     <ConversationContainer>
-                        {filteredConversations.map((conversation) => {
+                        {filterState !== 1 && filterState !== 2 && filteredConversations.map((conversation) => {
                             return (
                                 <ChatBox
                                     key={conversation.id + conversation.name}
@@ -158,7 +171,7 @@ const ChatPage = () => {
                             );
                         })}
                     </ConversationContainer>
-                </ScrollView>
+                </ScrollView>}
 
             
 
@@ -239,5 +252,13 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         paddingHorizontal: 20, // Optional: Add padding for better readability
     },
+    filterZone : {
+        marginTop : 20,
+        paddingHorizontal : 20,
+        gap : 5,
+        justifyContent : 'space-between',
+        flexDirection : 'row',
+        alignItems : 'center'
+    }
     
 });

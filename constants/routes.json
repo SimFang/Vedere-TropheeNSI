@@ -1,5 +1,5 @@
 {
-    "serverUrl": "http://192.168.0.32:8000",    
+    "serverUrl": "http://[2a04:cec0:1054:4edb:1834:ddf4:d16e:426a]:8000",    
     "loginEndpoint": "/api/users/login",
     "signupEndpoint": "/api/users/signup",
     "emailVerificationEndpoint": "/api/users/emailverification",

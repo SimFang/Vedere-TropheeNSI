@@ -19,14 +19,14 @@ const SearchBar = ({ query, setQuery }) => {
 export default SearchBar;
 
 const styles = StyleSheet.create({
+  
   searchContainer: {
+    flex : 1,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f0f0f0',
     borderRadius: 10,
     paddingHorizontal: 10,
-    marginHorizontal: 20,
-    marginTop: 20,
     height: 50,
   },
   searchInput: {

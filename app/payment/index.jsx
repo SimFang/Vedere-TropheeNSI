@@ -56,7 +56,12 @@ const Payment = () => {
         hour : data.hour,
         location : data.location,
         userId : data.userId,
-        photographer : photographerData
+        photographer : photographerData,
+        chatId : data.chatId,
+        personalIdInChat : data.personalIdInChat,
+        timeStamp : data.timeStamp,
+        photographerProfilePicture : JSON.parse(data.photographerProfilePicture),
+        photographerId : data.photographerId
       })
       console.log("initializing the payment")
       InitiatePayment(parseInt(photographerData.price) * 100)
@@ -69,7 +74,7 @@ const Payment = () => {
       if (error) {
         Alert.alert(`Error code: ${error.code}`, error.message);
       } else {
-        router.push("/payment/success")
+        router.replace("/payment/success")
       }
     };
 
@@ -94,7 +99,7 @@ const Payment = () => {
             {orderInfo?.photographer.name + " " + orderInfo?.photographer.surname}
           </Text>
         </View>
-        <Image source={{ uri: orderInfo?.photographer.work[0] }} style={styles.photographerProfilePicture} />
+        <Image source={{ uri: orderInfo?.photographerProfilePicture }} style={styles.photographerProfilePicture} />
       </View>
 
       {/* Payment Methods */}
@@ -134,6 +139,11 @@ const Payment = () => {
           <Ionicons name="calendar-outline" size={20} color="black" />
           <Text style={styles.detailText}>{orderInfo?.date}</Text>
         </View>
+        <View style={styles.detailItem}>
+          <Ionicons name="cash-outline" size={22} color="black" />
+          <Text style={styles.priceText}>{parseInt(orderInfo?.photographer.price)+"$"}</Text>
+        </View>
+       
       </View>
 
       {/* Pay Button */}
@@ -220,6 +230,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
+  },
+  priceText : {
+    fontSize: 14,
+    marginLeft: 10,
+    fontFamily : 'Satoshi-Bold'
   },
   detailText: {
     fontFamily: 'Satoshi',

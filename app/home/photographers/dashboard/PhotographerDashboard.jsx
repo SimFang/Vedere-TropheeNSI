@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, ScrollView, RefreshControlComponent } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons'; // Ensure this is installed
 import { loadPhotographerDashboard } from '../../../../services/photographer/getOrders';
@@ -17,6 +17,8 @@ const PhotographerDashboard = () => {
     const loadDashboardInfo = async () => {
         try {
             const response = await loadPhotographerDashboard(photographerState.isPhotographer);
+            console.log("photographer dashboard data : ")
+            console.log(response)
             setData(response);
         } catch (e) {
             console.log("error : " + e);
@@ -48,15 +50,14 @@ const PhotographerDashboard = () => {
                             style={styles.projectBox}
                             onPress={() => handleEyeButtonClick(project.id)} // Trigger on press of the entire box
                         >
-                            <Image source={{ uri: project.picUrl }} style={styles.projectImage} />
-                            <Text style={styles.projectName}>{project.location}</Text>
+                            <Image source={{ uri: project.client.profile_picture }} style={styles.projectImage} />
                             <View style={styles.projectDetails}>
-                                <Text style={styles.projectDate}>{project.date}</Text>
-                                <Text style={styles.projectPrice}>{project.price}</Text>
+                                <Text style={styles.projectPrice}>{}</Text>
                             </View>
                             <TouchableOpacity style={styles.eyeButton}>
                                 <Ionicons name="eye-sharp" size={24} color="black" />
                             </TouchableOpacity>
+                            <Text style={styles.projectName}>{project.client.name}</Text>
                         </TouchableOpacity>
                     ))}
                 </ScrollView>
@@ -81,27 +82,27 @@ const styles = StyleSheet.create({
         alignItems: 'center', // Ensure items are centered vertically
     },
     container: {
-        paddingHorizontal: 20,
-        gap: 5,
+        paddingHorizontal: 10,
+        gap : 10,
         flexDirection: 'row', // Align children horizontally
-        justifyContent: 'space-between', // Space between for equal distribution
-        alignItems: 'flex-end', // Align items at the top
+        justifyContent: 'center', // Space between for equal distribution
+        alignItems: 'center', // Align items at the top
     },
     lastprojects: {
-        width: "65%", // Set width for the last projects section
-        height: 200, // Set height as specified
+        width: "60%", // Set width for the last projects section
+        height: 170, // Set height as specified
         backgroundColor: 'white', // Set background color to white
         padding: 10,
-        borderWidth: 2,
+        borderWidth: 0,
         borderColor: 'black',
-        borderRadius: 15, // Add border radius
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 2,
+            height: 5,
         },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.5,
+        borderRadius: 10, // Add border radius
+        shadowOpacity: 0.10,
+        shadowRadius: 2,
         elevation: 5, // Android shadow
     },
     incomes: {
@@ -110,23 +111,21 @@ const styles = StyleSheet.create({
         height: 170, // Set height as specified
         backgroundColor: 'black', // Set background color to black
         padding: 10,
-        borderRadius: 15, // Add border radius
+        borderRadius: 10, // Add border radius
         justifyContent: 'center', // Align content to the top
     },
     headerTitle: {
-        fontFamily: 'Satoshi-Black',
+        fontFamily: 'Satoshi-Normal',
         fontSize: 18,
         marginBottom: 10,
+        color : 'grey',
         textAlign: 'center',
     },
     projectBox: {
-        backgroundColor: 'rgba(0, 0, 0, 0.85)', // Grey background for project boxes
-        borderRadius: 15, // Add border radius
-        padding: 20,
         marginVertical: 5,
         position: 'relative', // For positioning the eye button
-        width: 120, // Set width to prevent overflow and maintain scrollability
-        height: '80%',
+        width: "auto", // Set width to prevent overflow and maintain scrollability
+        height: "auto",
         alignItems: 'center',
         // Add shadow effect
         shadowColor: '#000', // Shadow color
@@ -139,27 +138,22 @@ const styles = StyleSheet.create({
         elevation: 2, // Android shadow
     },
     projectImage: {
-        width: '100%',
-        height: '100%',
-        borderRadius: 15, // Make the image corners rounded
-        position: 'absolute',
-        opacity: 0.2,
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        borderWidth : 4,
+        borderColor : "white",
+        width: 70,
+        height: 70,
+        borderRadius: 100, // Make the image corners rounded
+        opacity: 1,
         zIndex: 0, // Ensure the image is behind the text
     },
     projectName: {
-        fontFamily: 'Satoshi-Bold',
+        fontFamily: 'Satoshi-Medium',
         textAlign: "center",
+        paddingTop : 5,
         width: '100%',
-        fontSize: 12,
-        fontWeight: 'bold',
-        position: 'absolute', // Position text over the image
-        bottom: 40,
+        fontSize: 13,
         zIndex: 1, // Ensure text is on top
-        color: 'white', // Change text color for better visibility
+        color: 'grey', // Change text color for better visibility
     },
     projectDetails: {
         flexDirection: 'row',
@@ -181,9 +175,10 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
     eyeButton: {
+        display : "none",
         position: 'absolute',
-        top: -10,
-        right: -10,
+        top: 0,
+        right: 0,
         borderRadius: 200,
     },
     incomesTitle: {

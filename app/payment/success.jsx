@@ -3,14 +3,30 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { usePayment } from './PaymentContext';
 import { sendPropositionToConversation } from '../../services/chat/sendPropositionToConversation';
+import { updatePropositionStatusInChat } from '../../services/chat/updatePropositionStatus';
+import { createProposition } from '../../services/chat/createProposition';
 
 const PaymentSuccesful = () => {
   const router = useRouter();
   const {orderInfo} = usePayment()
 
   const handleConfirm = async()=>{
-    await sendPropositionToConversation(orderInfo.userId, "proposition", orderInfo.date, orderInfo.hour, orderInfo.location, Date.now(), orderInfo.conversationId);
-    router.replace('/home/chat')
+     // create the proposition
+     await updatePropositionStatusInChat(orderInfo.conversationId, orderInfo.personalIdInChat, 1, orderInfo.timeStamp )   
+     await createProposition(
+       orderInfo.chatId,
+       orderInfo.date,
+       orderInfo.hour,
+       orderInfo.location,
+       true,
+       false,
+       orderInfo.userId,
+       orderInfo.photographerId,
+       orderInfo.photographer.price,
+       1
+     );     
+     console.log("succesfully created") 
+     router.push('/home/chat')
   }
   return (
     <View style={styles.container}>
@@ -81,7 +97,7 @@ const PaymentSuccesful = () => {
         style={styles.confirmButton}
         onPress={handleConfirm} // Replace with your next route
       >
-        <Text style={styles.confirmButtonText}>Confirm & Send Proposition</Text>
+        <Text style={styles.confirmButtonText}>Validate the proposition</Text>
       </TouchableOpacity>
     </View>
   );

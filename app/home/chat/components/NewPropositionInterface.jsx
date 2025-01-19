@@ -233,15 +233,16 @@ const NewPropositionInterface = ({ handleInputChange = () => {}, setPropositionP
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Are you sure you want to {actionToConfirm}?</Text>
             <View style={styles.buttonsContainer}>
-              <TouchableOpacity onPress={handleConfirmAction} style={styles.modalButton}>
-                <Text style={styles.modalButtonText}>Yes</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
+            <TouchableOpacity
                 onPress={() => setIsConfirmationModalVisible(false)}
                 style={styles.modalButton}
               >
                 <Text style={styles.modalButtonText}>No</Text>
               </TouchableOpacity>
+              <TouchableOpacity onPress={handleConfirmAction} style={styles.validationModalButton}>
+                <Text style={styles.validationModalButtonText}>Yes</Text>
+              </TouchableOpacity>
+              
             </View>
           </View>
         </Modal>
@@ -397,4 +398,16 @@ const styles = StyleSheet.create({
     fontSize: 16,                // Font size for text
     color: '#333',               // Text color (adjust as needed)
   },
+  validationModalButton : {
+    flex: 1,                     // Each button takes equal space
+    backgroundColor: '#f0f0f0',  // Button background color (adjust as needed)
+    paddingVertical: 10,         // Vertical padding for buttons
+    marginHorizontal: "5%",         // Add space between buttons
+    alignItems: 'center',        // Center text inside button
+    borderRadius: 5,  
+  },
+  validationModalButtonText : {
+    fontSize: 16,                // Font size for text
+    color: '#333',  
+  }
 });

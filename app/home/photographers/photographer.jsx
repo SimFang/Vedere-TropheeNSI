@@ -1,3 +1,4 @@
+
 import { StyleSheet, Text, View, TouchableOpacity, ImageBackground, Animated, ActivityIndicator } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import CompanyLogo from '../../../components/elements/companyLogo';
@@ -6,11 +7,14 @@ import { fetchUserInfo } from '../../../services/getUserInfoByTokenRequest';
 import { createConversation } from '../../../services/chat/createConversation';
 import { useRouter } from 'expo-router';
 import { setCurrentChatId } from '../../../store/chatSlice';
+import ScrollerImageSlider from './components/ScrollerImageSlider';
+import CollaborateButton from './components/CollaborateButton';
 
 const Photographer = ({ photographer }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true); // State to track image loading
   const fadeAnim = useRef(new Animated.Value(1)).current;
+  const [showSlider, setShowSlider] = useState(false);
 
 
   
@@ -23,7 +27,7 @@ const Photographer = ({ photographer }) => {
     if (photographer.work.length > 1) {
       const interval = setInterval(() => {
         fadeOutImage(); // Fade out the current image
-      }, 5000); // Change image every 5 seconds
+      }, 3000); // Change image every 5 seconds
 
       return () => clearInterval(interval);
     }
@@ -59,20 +63,28 @@ const Photographer = ({ photographer }) => {
       // call the backend 
   }
 
-  return (
-    <View style={styles.container}>
-      {/* Background Image with Fade Effect */}
-      <Animated.View style={[styles.backgroundImageWrapper, { opacity: fadeAnim }]}>
-  
-        <ImageBackground
-          source={{ uri: photographer.work[currentImageIndex] }}
-          style={styles.backgroundImage}
-          blurRadius={0} // Add blur for the background image
-          onLoad={() => setIsLoading(false)} // Hide spinner once the image is loaded
-        />
-      </Animated.View>
+  const toggleSlider = () => {
+    console.log("clicked")
+    setShowSlider(old => !old)
+  }
 
+  return (
+    <>
+
+    <View style={styles.container}>
+    {showSlider && <ScrollerImageSlider imageList={photographer.work} initialImageUri={photographer.work[currentImageIndex]} name={photographer?photographer.name:""} surname={photographer?photographer.surname:""} onClose={toggleSlider}/>}
+      {/* Background Image with Fade Effect */}
+
+        <Animated.View style={[styles.backgroundImageWrapper, { opacity: fadeAnim }]}>
+          <ImageBackground
+            source={{ uri: photographer.work[currentImageIndex] }}
+            style={styles.backgroundImage}
+            blurRadius={0} // Add blur for the background image
+            onLoad={() => setIsLoading(false)} // Hide spinner once the image is loaded
+          />
+        </Animated.View>
       {/* Overlay content that stays visible during image transitions */}
+      <TouchableOpacity activeOpacity={1} style={styles.touchableWrapper} onPress={toggleSlider}>
       <View style={styles.overlay}>
         {/* Top Header */}
         <View style={styles.header}>
@@ -105,11 +117,11 @@ const Photographer = ({ photographer }) => {
         </View>
 
         {/* Collaborate Button */}
-        <TouchableOpacity style={styles.button} onPress={handleCollaborate}>
-          <Text style={styles.buttonText}>collaborate</Text>
-        </TouchableOpacity>
+        <CollaborateButton onPress={handleCollaborate}/>
       </View>
+      </TouchableOpacity>
     </View>
+    </>
   );
 };
 
@@ -138,6 +150,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
+    opacity : 0.6,
   },
   overlay: {
     flex: 1,
@@ -249,4 +262,10 @@ const styles = StyleSheet.create({
     left: '50%',
     transform: [{ translateX: -12 }, { translateY: -12 }],
   },
+  touchableWrapper: {
+    width: '100%',
+    height: '100%',
+  },
 });
+
+

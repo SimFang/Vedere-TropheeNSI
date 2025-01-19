@@ -10,6 +10,14 @@ import CompanyLogo from '../../../components/elements/companyLogo';
 import { getNearestPhotographers } from '../../../services/getPhotographers/getnearest';
 import { getUserLocation } from '../../../components/device/getUserLocation';
 
+import professionalIllustration from "../../../assets/images/filter_page/professional.jpg"
+import amateurIllustration from "../../../assets/images/filter_page/amateur.jpg"
+import eventIllustration from "../../../assets/images/filter_page/event.jpg"
+import instagramIllustration from "../../../assets/images/filter_page/instagram.jpg"
+import portraitIllustration from "../../../assets/images/filter_page/portrait.jpg"
+
+
+
 const Filters = () => {
   const [selectedType, setSelectedType] = useState('Portrait'); // Default type
   const [selectedExpertise, setSelectedExpertise] = useState('Amateur'); // Default expertise
@@ -57,36 +65,49 @@ const Filters = () => {
 
       <Text style={styles.heading}>{t('whatareyoulookingfor')}</Text>
       
-      {/* Type Section */}
       <View style={styles.section}>
-        {types.map((type) => (
-          <OptionButton
-            key={type}
-            option={type}
-            selected={selectedType === type}
-            onPress={() => {
+        {types.map((type) => {
+          let backgroundImage;
+          if (type === 'Event') backgroundImage = eventIllustration;
+          if (type === 'Portrait') backgroundImage = portraitIllustration;
+          if (type === 'Instagram') backgroundImage = instagramIllustration;
+
+          return (
+            <OptionButton
+              key={type}
+              option={type}
+              selected={selectedType === type}
+              onPress={() => {
                 setSelectedType(type);
-                dispatch(changeFilterType(type))
-            }}
-            width="30%"  // Pass width as prop
-          />
-        ))}
+                dispatch(changeFilterType(type));
+              }}
+              width="30%" // Pass width as prop
+              backgroundImage={backgroundImage} // Pass the illustration
+            />
+          );
+        })}
       </View>
 
-      {/* Expertise Section */}
       <View style={styles.section}>
-        {expertise.map((level) => (
-          <OptionButton
-            key={level}
-            option={level}
-            selected={selectedExpertise === level}
-            onPress={() => {
+        {expertise.map((level) => {
+          let backgroundImage;
+          if (level === 'Amateur') backgroundImage = amateurIllustration;
+          if (level === 'Professional') backgroundImage = professionalIllustration;
+
+          return (
+            <OptionButton
+              key={level}
+              option={level}
+              selected={selectedExpertise === level}
+              onPress={() => {
                 setSelectedExpertise(level);
-                dispatch(changeFilterExpertise(level))
-            }}
-            width="48.5%"  // Pass width as prop
-          />
-        ))}
+                dispatch(changeFilterExpertise(level));
+              }}
+              width="48.5%" // Pass width as prop
+              backgroundImage={backgroundImage} // Pass the illustration
+            />
+          );
+        })}
       </View>
 
       {/* Search Button */}
@@ -121,7 +142,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   searchButton: {
-    marginTop : 20,
+    marginTop : 40,
     height : '20%',
     padding: 20,
     borderRadius: 50,

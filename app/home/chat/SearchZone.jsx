@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     borderWidth: 2, // Define the border thickness
   },
   searchContainer: {
-    height: '32%',
+    height: '40%',
     backgroundColor: 'black',
     borderRadius: 15,
     padding: 20,

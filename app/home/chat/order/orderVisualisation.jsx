@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import MapView, { Marker } from 'react-native-maps';
-import { StyleSheet, View, ActivityIndicator, Text, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, ActivityIndicator, Text, Image, TouchableOpacity, Animated, PanResponder } from 'react-native';
 import { getLocation } from '../../../../helpers/location/getUserLocation';
 import { Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,11 +16,12 @@ import { addWorkToProposition } from "../../../../services/proposition/pushResul
 import * as ImagePicker from 'expo-image-picker'; // Import image picker
 import ValidationButton from '../components/ValidationButton';
 import validateShooting from '../../../../services/proposition/validateShooting';
+import useSwipeAnimation from '../../../../helpers/animations/useSwipeAnimation';
 
 const App = () => {
   const [region, setRegion] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState([]);
   const [selectedPhotographer, setSelectedPhotographer] = useState(null);
   const [shownPicture, setShownPicture] = useState(null);
   const [selectedImages, setSelectedImages] = useState([]); // State to hold selected images
@@ -29,6 +30,8 @@ const App = () => {
   const photographerState = useSelector((state) => state.photographer);
   const router = useRouter();
   const dispatch = useDispatch();
+
+  const { panResponder, translateXAnim, fadeAnim } = useSwipeAnimation(handleBack);
 
   const clear = () => {
     dispatch(clearDisplayedOrder());
@@ -90,10 +93,14 @@ const App = () => {
       const propositionId = photographerState.displayedOrderId; // Assuming this is how you get the proposition ID
       const uploadedData = await addWorkToProposition(propositionId, selectedImages);
       console.log("Upload successful:", uploadedData);
-      // Optionally update the local state or show a success message
+      const newData = {
+        ...data, 
+        results: [...data.results, ...uploadedData.imageUrls] 
+      };      
+      setData(newData)
       setHasUploaded(false)
       setLoading(false)
-    } catch (error) {
+    } catch (error) { 
       console.error("Error uploading images:", error);
       alert("An error occurred while uploading images.");
     }
@@ -105,55 +112,61 @@ const App = () => {
       console.log("Fetched location:", location);
       return location;
     };
-
+  
     const loadOrderData = async () => {
       const response = await getPropositionById(photographerState.displayedOrderId);
       console.log("Fetched order data:", response);
-
+  
       const coordinates = await getCoordinates(response.location);
       console.log("Fetched coordinates:", coordinates);
-
+  
       return {
         response,
         coordinates,
         p2_id: response.p2_id || null,
       };
     };
-
+  
     const fetchData = async () => {
-      const [location, orderData] = await Promise.all([fetchLocation(), loadOrderData()]);
-
-      const coordinates = orderData.coordinates || location;
-
-      if (coordinates) {
-        setRegion({
-          latitude: coordinates.latitude,
-          longitude: coordinates.longitude,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        });
-      }
-
-      if (orderData.p2_id) {
-        try {
-          const photographerInfo = await fetchPhotographerById(orderData.p2_id);
-          console.log("Photographer Info:", photographerInfo);
-          setSelectedPhotographer(photographerInfo.photographer);
-        } catch (e) {
-          handleBack();
+      try {
+        const [location, orderData] = await Promise.all([fetchLocation(), loadOrderData()]);
+  
+        const coordinates = orderData.coordinates || location;
+  
+        if (coordinates) {
+          setRegion({
+            latitude: coordinates.latitude,
+            longitude: coordinates.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          });
         }
-      } else {
-        handleBack();
-        console.warn("p2_id is null, unable to fetch photographer info.");
+  
+        if (orderData.p2_id) {
+          try {
+            const photographerInfo = await fetchPhotographerById(orderData.p2_id);
+            console.log("Photographer Info:", photographerInfo);
+            setSelectedPhotographer(photographerInfo.photographer);
+          } catch (e) {
+            handleBack();
+          }
+        } else {
+          handleBack();
+          console.warn("p2_id is null, unable to fetch photographer info.");
+        }
+  
+        setData(orderData.response);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        alert("An error occurred while fetching data.");
+      } finally {
+        setLoading(false); // Set loading to false after all data fetching is complete
       }
-
-      setData(orderData.response);
-      setLoading(false);
     };
-
-    setLoading(true);
+  
+    setLoading(true); // Start loading
     fetchData();
-  }, []);
+  }, []); // Empty dependency array ensures this runs once on component mount
 
   const handleValidation = async()=> {
     console.log("validating")
@@ -166,10 +179,26 @@ const App = () => {
     await validateShooting(photographerState.displayedOrderId, userId )
   }
 
+  if (loading) {
+    return (<></>
+    )
+  }
+
+  
+
   return (
     <>
       {shownPicture && <PictureVisualization imageUri={shownPicture} onClose={() => setShownPicture(null)} />}
-      <View style={styles.container}>
+      <Animated.View
+      {...panResponder.panHandlers} // Attach pan gesture handlers
+      style={[
+        styles.container,
+        {
+          transform: [{ translateX: translateXAnim }], // Apply horizontal movement
+          opacity: fadeAnim, // Apply fade effect
+        },
+      ]}
+    >
         <TouchableOpacity style={styles.backButton} onPress={handleBack}>
           <Ionicons name="chevron-back" size={35} color="black" />
         </TouchableOpacity>
@@ -246,7 +275,7 @@ const App = () => {
             
           </View>
         )}
-      </View>
+    </Animated.View>
     </>
   );
 }
