@@ -1,0 +1,29 @@
+
+---
+
+### `licence.txt`
+
+Licence GNU General Public License v3.0 ou ultérieure (GPL v3+)
+
+Ce projet est distribué sous la licence GNU General Public License version 3.0 ou toute version ultérieure.
+Vous êtes libre de copier, modifier et distribuer ce logiciel selon les termes de cette licence.
+
+Pour plus de détails, voir : https://www.gnu.org/licenses/gpl-3.0.fr.html
+
+
+---
+
+### `sources/main.js`
+
+```javascript
+// sources/main.js
+import { registerRootComponent } from 'expo';
+import App from './App';
+
+// Point d'entrée principal de l'application Expo
+registerRootComponent(App);
+
+(Note : Ce fichier suppose l’existence d’un fichier App.js dans sources/ qui contient la logique principale de votre application React Native. Si votre structure est différente, ajustez en conséquence.)
+
+requirements.txt
+Pour un projet React Native avec Expo, on utilise généralement un fichier package.json plutôt qu’un requirements.txt. Voici un package.json adapté, mais pour respecter votre demande, je fournis un requirements.txt fictif qui pourrait être interprété comme une liste de dépendances Node.js :
