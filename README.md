@@ -1,4 +1,4 @@
-# Projet Vedere - Application Mobile React Native (Expo) 📸
+# Projet Vedere - Serveur (Python3) 📸
 
 Vedere est une application mobile développée avec **React Native** et **Expo**, conçue pour connecter les utilisateurs à un service de photographie grâce à un backend Python intégré à **Firebase** (gestion des utilisateurs, images et géolocalisation). Ce README vous guide pour utiliser ou déployer le projet.
 
