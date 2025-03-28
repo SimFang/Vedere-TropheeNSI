@@ -1,4 +1,4 @@
-# Projet Vedere - Application Mobile React Native (Expo)
+# Projet Vedere - Application Mobile React Native (Expo) 📸
 
 Vedere est une application mobile développée avec **React Native** et **Expo**, conçue pour connecter les utilisateurs à un service de photographie grâce à un backend Python intégré à **Firebase** (gestion des utilisateurs, images et géolocalisation). Ce README vous guide pour utiliser ou déployer le projet.
 
@@ -73,3 +73,18 @@ npx expo start --no-dev --minify --https --port 19000
 - Scannez le QR code généré avec l’application Expo Go, mais assurez-vous que votre appareil et votre ordinateur sont sur un réseau privé virtuel (VPN) dédié pour la synchronisation.
 - Activez le mode développeur sur votre appareil mobile et configurez un tunnel réseau inversé (par exemple avec ngrok) pour exposer le serveur local au backend.
 Résolvez les erreurs liées à la compatibilité des modules natifs en recompilant manuellement les dépendances avec pod install (iOS) ou Gradle (Android).
+
+## Usage
+### Une fois l’application installée ou lancée :
+
+- Ouvrez Vedere sur votre appareil.
+- Connectez-vous avec vos identifiants ou créez un compte.
+- Recherchez un photographe près de chez vous via la carte ou la liste.
+- Consultez son portfolio et réservez une séance photo selon vos besoins.
+### Remarques
+La méthode manuelle est complexe et nécessite une expertise en configuration réseau et mobile.
+Pour toute question, consultez la documentation officielle d’Expo ou de Firebase.
+## License
+Free use, for more information see license.txt
+## Contact
+Pour plus d’informations, visitez vedere.framer.website.
