@@ -2,7 +2,7 @@
 
 Vedere est une application mobile développée avec **React Native** et **Expo**, conçue pour connecter les utilisateurs à un service de photographie grâce à un backend Python intégré à **Firebase** (gestion des utilisateurs, images et géolocalisation). Ce README vous guide pour utiliser ou déployer le projet.
 
-## What is Vedere?
+## C'est quoi Vedere?
 
 Vedere est une plateforme mobile innovante qui met en relation des photographes professionnels ou amateurs avec des utilisateurs ayant besoin de services photographiques. Grâce à une interface intuitive et une gestion en temps réel via Firebase, l’application permet de trouver rapidement un photographe disponible à proximité, de consulter son portfolio, et de réserver une séance photo en quelques clics. Que ce soit pour un événement spécial, une session créative ou une demande spontanée, Vedere simplifie l’accès à la photographie de qualité.
 ## Prérequis
